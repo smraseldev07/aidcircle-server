@@ -56,6 +56,13 @@ app.post('/joined' , async(req, res) =>{
   res.send(result)
 })
 
+app.get('/manage-event/:email' , async(req , res) =>{
+const {email} = req.params
+const result =  await joinedcollection.find({email:email}).toArray()
+
+res.send(result)
+})
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
