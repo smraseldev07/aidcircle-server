@@ -63,6 +63,23 @@ const result =  await joinedcollection.find({email:email}).toArray()
 res.send(result)
 })
 
+app.patch('/manage-event/:id',async(req , res) =>{
+const {id} = req.params
+const data = req.body
+
+const result = await joinedcollection.updateOne(
+  {_id: id},
+  {$set:data}
+)
+
+
+await eventcollection.updateOne(
+  {_id: new ObjectId(id)},
+  {$set:data}
+)
+
+res.json(result)
+}) 
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
