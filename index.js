@@ -2,6 +2,7 @@ import express from "express"
 import { MongoClient, ObjectId } from 'mongodb';
 import 'dotenv/config'
 import cors from "cors"
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 
 
@@ -28,7 +29,7 @@ const db = Mongo.db("aid-circle")
 const eventcollection = db.collection("events")
 const joinedcollection = db.collection("joined")
 
-const verfyapi = (req, res , next) =>{
+const verfyapi = async(req, res , next) =>{
   const authheader = req.headers.authorization
 if(!authheader){
   return res.status(401).send({msg: 'unauthorized'})
@@ -37,14 +38,24 @@ if(!authheader){
 
  const token = authheader.split(" ")[1]
 
- console.log(token);
+
  
 
 if(!token){
    return res.status(401).send({msg: 'unauthorized'})
 }
 
-  next()
+const jwks = createRemoteJWKSet(new URL('http://localhost:3000/api/auth/jwks'))
+
+
+
+try {
+  const {payload} = await jwtVerify(token , jwks)
+    next()
+} catch (error) {
+  return res.status(401).send({msg: 'unauthorized'})
+}
+
   
 }
 
