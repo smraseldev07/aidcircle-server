@@ -28,6 +28,26 @@ const db = Mongo.db("aid-circle")
 const eventcollection = db.collection("events")
 const joinedcollection = db.collection("joined")
 
+const verfyapi = (req, res , next) =>{
+  const authheader = req.headers.authorization
+if(!authheader){
+  return res.status(401).send({msg: 'unauthorized'})
+}
+  
+
+ const token = authheader.split(" ")[1]
+
+ console.log(token);
+ 
+
+if(!token){
+   return res.status(401).send({msg: 'unauthorized'})
+}
+
+  next()
+  
+}
+
 app.post('/create-event', async(req , res) =>{
   const data = req.body
   const result =  await eventcollection.insertOne(data)
@@ -40,7 +60,7 @@ app.get('/events', async (req, res) =>{
   const result = await eventcollection.find().toArray()
   res.send(result)
 })
-app.get('/events/:id', async (req, res) =>{
+app.get('/events/:id',verfyapi, async (req, res) =>{
   const {id} = req.params
   const result = await eventcollection.findOne({_id: new ObjectId(id)})
 
@@ -72,7 +92,6 @@ const result = await joinedcollection.updateOne(
   {$set:data}
 )
 
-
 await eventcollection.updateOne(
   {_id: new ObjectId(id)},
   {$set:data}
@@ -80,6 +99,15 @@ await eventcollection.updateOne(
 
 res.json(result)
 }) 
+
+app.delete('/manage-event/:id' , async(req, res) =>{
+  const {id} = req.params
+  const result = await joinedcollection.deleteOne({_id: id})
+
+  res.send(result)
+})
+
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
