@@ -45,7 +45,7 @@ if(!token){
    return res.status(401).send({msg: 'unauthorized'})
 }
 
-const jwks = createRemoteJWKSet(new URL('http://localhost:3000/api/auth/jwks'))
+const jwks = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`))
 
 
 
